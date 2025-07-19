@@ -8,23 +8,42 @@ int main() {
     int T;
     cin >> T;
 
-    while(T--) {
-        int cs = 1;
+    for (int caseNo = 1; caseNo <= T; ++caseNo) {
         int n, d;
         cin >> n >> d;
 
-        vector<int> arr, diffArr;
-        for(int i = 0; i < n; i++) {
-            int x;
-            cin >> x;
-            arr.push_back(x);
+        vector<int> arr(n);
+        for (int i = 0; i < n; ++i)
+            cin >> arr[i];
+
+        deque<int> maxDeque, minDeque;
+        int maxDiff = 0;
+
+        for (int i = 0; i < n; ++i) {
+            // maintain decreasing order for maxDeque
+            while (!maxDeque.empty() && arr[maxDeque.back()] <= arr[i]) {
+                maxDeque.pop_back();
+            }
+            maxDeque.push_back(i);
+
+            // maintain increasing order for minDeque
+            while (!minDeque.empty() && arr[minDeque.back()] >= arr[i])
+                minDeque.pop_back();
+            minDeque.push_back(i);
+
+            // remove elements out of the window
+            if (i >= d - 1) {
+                if (!maxDeque.empty() && maxDeque.front() <= i - d)
+                    maxDeque.pop_front();
+                if (!minDeque.empty() && minDeque.front() <= i - d)
+                    minDeque.pop_front();
+
+                int currentDiff = arr[maxDeque.front()] - arr[minDeque.front()];
+                maxDiff = max(maxDiff, currentDiff);
+            }
         }
 
-        for(int i = 0; i < n - d + 1; i++) {
-            diffArr.push_back(max(arr[i + d - 1], arr[i]) - min(arr[i + d - 1], arr[i]));
-        }
-
-        cout << "Case " << cs << ": " <<*max_element(diffArr.begin(), diffArr.end()) << "\n";
+        cout << "Case " << caseNo << ": " << maxDiff << '\n';
     }
     return 0;
 }
